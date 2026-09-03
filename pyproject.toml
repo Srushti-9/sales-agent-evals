@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sales-agent-evals"
+version = "0.1.0"
+description = "An observable, evaluated OpenAI function-calling agent over a sales dataset (DuckDB + Arize Phoenix)."
+readme = "README.md"
+requires-python = ">=3.13,<3.15"
+license = { file = "LICENSE" }
+authors = [{ name = "Srushti" }]
+
+dependencies = [
+    "openai>=3.7,<4",
+    "duckdb>=1.5,<2",
+    "pandas>=3,<4",
+    "pyarrow>=25,<26",
+    "matplotlib>=3.11,<4",
+    "python-dotenv>=1.2,<2",
+    "nest-asyncio>=1.6,<2",
+    "arize-phoenix>=20.6,<21",
+    "arize-phoenix-otel>=0.17,<1",
+    "arize-phoenix-client>=3.3,<4",
+    "openinference-instrumentation-openai>=0.1.57,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=9,<10"]
+
+[project.scripts]
+sales-agent = "sales_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
