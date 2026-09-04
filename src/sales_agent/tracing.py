@@ -98,4 +98,5 @@ def setup_tracing():
 def _flush_and_shutdown(tracer_provider) -> None:
     with contextlib.suppress(Exception):
         tracer_provider.force_flush()
+    with contextlib.suppress(Exception):
         tracer_provider.shutdown()
