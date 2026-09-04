@@ -44,6 +44,20 @@ def handle_tool_calls(tool_calls, messages):
 
 
 def run_agent(messages) -> str:
+    final, _ = _run_agent_loop(messages)
+    return final
+
+
+def run_agent_with_messages(messages) -> tuple[str, list]:
+    """Like ``run_agent`` but also returns the full message trajectory.
+
+    Used by the convergence experiment, whose metric is the number of steps
+    the agent took to reach an answer.
+    """
+    return _run_agent_loop(messages)
+
+
+def _run_agent_loop(messages) -> tuple[str, list]:
     client = get_openai_client()
     model = get_settings().openai_model
     tracer = get_tracer()
@@ -73,7 +87,7 @@ def run_agent(messages) -> str:
             else:
                 final = response.choices[0].message.content
                 span.set_output(value=final)
-                return final
+                return final, messages
 
 
 def start_main_span(messages) -> str:
