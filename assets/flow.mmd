@@ -1,0 +1,43 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#0ea5e9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#0284c7', 'lineColor': '#94a3b8', 'secondaryColor': '#f0f9ff', 'tertiaryColor': '#e0f2fe', 'background': '#0f172a', 'mainBkg': '#1e293b', 'nodeBorder': '#0ea5e9', 'clusterBkg': '#1e293b', 'titleColor': '#e2e8f0', 'edgeLabelBackground': '#1e293b', 'fontFamily': 'ui-monospace, monospace'}}}%%
+sequenceDiagram
+    actor User
+    participant CLI as 🖥️ CLI
+    participant Agent as 🤖 Agent Router
+    participant OpenAI as ☁️ OpenAI
+    participant Tool as 🔧 Tool
+    participant DuckDB as 🗃️ DuckDB
+    participant Phoenix as 🌐 Phoenix
+
+    User->>CLI: ask "Which stores did best?"
+    CLI->>Phoenix: setup_tracing()
+    CLI->>Agent: ask(question)
+
+    Agent->>Phoenix: start span [AGENT]
+    Agent->>OpenAI: messages + tools schema
+    OpenAI-->>Agent: tool_call: lookup_sales_data
+
+    Agent->>Phoenix: start span [TOOL]
+    Agent->>Tool: lookup_sales_data(prompt)
+    Tool->>OpenAI: generate SQL
+    OpenAI-->>Tool: SELECT ... FROM parquet
+    Tool->>DuckDB: execute SQL
+    DuckDB-->>Tool: DataFrame
+    Tool-->>Agent: data as string
+    Agent->>Phoenix: end span [TOOL]
+
+    Agent->>OpenAI: messages + tool result
+    OpenAI-->>Agent: tool_call: analyze_sales_data
+
+    Agent->>Phoenix: start span [TOOL]
+    Agent->>Tool: analyze_sales_data(prompt, data)
+    Tool->>OpenAI: interpret data
+    OpenAI-->>Tool: analysis text
+    Tool-->>Agent: analysis
+    Agent->>Phoenix: end span [TOOL]
+
+    Agent->>OpenAI: messages + tool result
+    OpenAI-->>Agent: final answer (no tool_calls)
+
+    Agent->>Phoenix: end span [AGENT]
+    Agent-->>CLI: answer text
+    CLI-->>User: prints answer

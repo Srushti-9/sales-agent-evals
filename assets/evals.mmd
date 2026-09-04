@@ -1,0 +1,30 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8b5cf6', 'primaryTextColor': '#fff', 'primaryBorderColor': '#7c3aed', 'lineColor': '#94a3b8', 'secondaryColor': '#faf5ff', 'tertiaryColor': '#ede9fe', 'background': '#0f172a', 'mainBkg': '#1e293b', 'nodeBorder': '#8b5cf6', 'clusterBkg': '#1e293b', 'titleColor': '#e2e8f0', 'edgeLabelBackground': '#1e293b', 'fontFamily': 'ui-monospace, monospace'}}}%%
+graph LR
+    subgraph Run["  1 · Agent Run  "]
+        Q["❓ Question"] --> AGENT["🤖 Agent"]
+        AGENT --> SPANS["📡 Spans emitted\nAGENT · TOOL · CHAIN"]
+    end
+
+    subgraph Store["  2 · Phoenix  "]
+        SPANS --> PX["🌐 Phoenix\nlocalhost:6006"]
+        PX --> DB[("🗄️ Span store")]
+    end
+
+    subgraph Eval["  3 · Evaluators  "]
+        DB --> E1["🏷️ Tool Calling\nLLM-as-judge\ncorrect / incorrect"]
+        DB --> E2["🏷️ SQL Generation\nLLM-as-judge\ncorrect / incorrect"]
+        DB --> E3["🏷️ Response Clarity\nLLM-as-judge\nclear / unclear"]
+        DB --> E4["🏷️ Runnable Code\nPython exec check\nrunnable / not_runnable"]
+    end
+
+    subgraph Scores["  4 · Annotations  "]
+        E1 --> ANN["📊 Scores written\nback to Phoenix"]
+        E2 --> ANN
+        E3 --> ANN
+        E4 --> ANN
+    end
+
+    subgraph Experiment["  5 · Convergence Experiment  "]
+        ANN --> EXP["🧪 17 paraphrases\nof same question"]
+        EXP --> SCORE["📈 path_length score\noptimal ÷ actual"]
+    end

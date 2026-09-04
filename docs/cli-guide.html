@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sales-agent CLI Commands</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+  h1 { text-align: center; font-size: 2rem; color: #f8fafc; margin-bottom: 0.5rem; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 3rem; font-size: 1rem; }
+  .cmd-block { background: #1e293b; border-radius: 1.2rem; margin-bottom: 2.5rem; overflow: hidden; border: 1px solid #334155; }
+  .cmd-header { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; border-bottom: 1px solid #334155; }
+  .cmd-icon { font-size: 2rem; }
+  .cmd-title { font-size: 1.2rem; font-weight: 700; color: #f1f5f9; }
+  .cmd-tag { font-size: 0.75rem; background: #0f172a; color: #94a3b8; border-radius: 999px; padding: 0.2rem 0.7rem; margin-left: auto; border: 1px solid #334155; }
+  .cmd-code { background: #0f172a; padding: 0.8rem 1.5rem; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.85rem; color: #a5f3fc; border-bottom: 1px solid #334155; overflow-x: auto; white-space: pre; }
+  .cmd-body { padding: 1.5rem; }
+  .what { font-size: 1rem; color: #cbd5e1; margin-bottom: 1.2rem; line-height: 1.6; }
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.2rem; }
+  .flow-step { background: #0f172a; border: 1px solid #475569; border-radius: 0.6rem; padding: 0.4rem 0.8rem; font-size: 0.82rem; color: #e2e8f0; white-space: nowrap; }
+  .flow-arrow { color: #6366f1; font-size: 1rem; font-weight: bold; }
+  .example-box { background: #0f172a; border-radius: 0.8rem; padding: 1rem 1.2rem; border-left: 3px solid; font-size: 0.85rem; }
+  .example-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 0.5rem; }
+  .example-line { color: #94a3b8; margin: 0.2rem 0; font-family: monospace; }
+  .evaluators { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .eval-card { background: #0f172a; border-radius: 0.8rem; padding: 0.8rem 1rem; border: 1px solid #334155; }
+  .eval-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .eval-desc { font-size: 0.78rem; color: #94a3b8; }
+  .score-row { display: flex; align-items: center; gap: 0.8rem; margin: 0.4rem 0; font-size: 0.85rem; }
+  .score-bar-wrap { flex: 1; background: #1e293b; border-radius: 999px; height: 8px; }
+  .score-bar { height: 8px; border-radius: 999px; }
+  .score-val { font-weight: 700; min-width: 3rem; text-align: right; font-family: monospace; }
+  .score-label { min-width: 8rem; color: #94a3b8; font-size: 0.78rem; }
+  .flags { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .flag-card { flex: 1; min-width: 180px; background: #0f172a; border-radius: 0.8rem; padding: 0.8rem 1rem; border: 1px solid #334155; }
+  .flag-name { font-family: monospace; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .flag-desc { font-size: 0.8rem; color: #94a3b8; line-height: 1.5; }
+  .seed-visual { display: flex; gap: 0.6rem; margin-top: 0.6rem; flex-wrap: wrap; }
+  .seed-pill { border-radius: 999px; padding: 0.25rem 0.7rem; font-size: 0.75rem; font-family: monospace; border: 1px solid; }
+
+  .ask   .cmd-header { background: linear-gradient(90deg,#1e293b,#1e1a3a); }
+  .ask   .cmd-title  { color: #a78bfa; }
+  .ask   .cmd-tag    { border-color: #6d28d9; color: #a78bfa; }
+  .ask   .example-box{ border-color: #6d28d9; }
+
+  .eval  .cmd-header { background: linear-gradient(90deg,#1e293b,#0c2a1e); }
+  .eval  .cmd-title  { color: #34d399; }
+  .eval  .cmd-tag    { border-color: #059669; color: #34d399; }
+  .eval  .example-box{ border-color: #059669; }
+
+  .single .cmd-header { background: linear-gradient(90deg,#1e293b,#0c1f2a); }
+  .single .cmd-title  { color: #38bdf8; }
+  .single .cmd-tag    { border-color: #0284c7; color: #38bdf8; }
+  .single .example-box{ border-color: #0284c7; }
+
+  .exp   .cmd-header { background: linear-gradient(90deg,#1e293b,#2a1a0c); }
+  .exp   .cmd-title  { color: #fb923c; }
+  .exp   .cmd-tag    { border-color: #c2410c; color: #fb923c; }
+  .exp   .example-box{ border-color: #c2410c; }
+
+  .gen   .cmd-header { background: linear-gradient(90deg,#1e293b,#1a0c2a); }
+  .gen   .cmd-title  { color: #f472b6; }
+  .gen   .cmd-tag    { border-color: #be185d; color: #f472b6; }
+  .gen   .example-box{ border-color: #be185d; }
+</style>
+</head>
+<body>
+
+<h1>sales-agent CLI</h1>
+<p class="subtitle">6 commands · what they do · how they work · when to use them</p>
+
+<div class="cmd-block ask">
+  <div class="cmd-header">
+    <span class="cmd-icon">🗣️</span>
+    <span class="cmd-title">ask</span>
+    <span class="cmd-tag">core command</span>
+  </div>
+  <div class="cmd-code">uv run python -m sales_agent.cli ask "Which stores did the best in 2021?"</div>
+  <div class="cmd-body">
+    <p class="what">Type a question in plain English. The agent works out which tools to use, runs them in order, and prints a human-readable answer. Every step is silently recorded in Phoenix.</p>
+    <div class="flow">
+      <div class="flow-step">📝 Your question</div><div class="flow-arrow">→</div>
+      <div class="flow-step">🤖 Router (OpenAI)</div><div class="flow-arrow">→</div>
+      <div class="flow-step">🔍 lookup_sales_data</div><div class="flow-arrow">→</div>
+      <div class="flow-step">🗃️ SQL → DuckDB</div><div class="flow-arrow">→</div>
+      <div class="flow-step">🧠 analyze_sales_data</div><div class="flow-arrow">→</div>
+      <div class="flow-step">💬 Final answer</div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">Example</div>
+      <div class="example-line"><span style="color:#a78bfa">IN</span>  "Which stores did the best in 2021?"</div>
+      <div class="example-line"><span style="color:#64748b">  →</span> SQL: SELECT store_id, SUM(sales) … ORDER BY 2 DESC LIMIT 5</div>
+      <div class="example-line"><span style="color:#64748b">  →</span> DuckDB returns a table of numbers</div>
+      <div class="example-line"><span style="color:#64748b">  →</span> LLM reads the table, writes English</div>
+      <div class="example-line"><span style="color:#34d399">OUT</span> "Store 2970 had the highest sales at 84,454…"</div>
+    </div>
+  </div>
+</div>
+
+<div class="cmd-block eval">
+  <div class="cmd-header">
+    <span class="cmd-icon">🏆</span>
+    <span class="cmd-title">eval</span>
+    <span class="cmd-tag">quality check</span>
+  </div>
+  <div class="cmd-code">uv run python -m sales_agent.cli eval</div>
+  <div class="cmd-body">
+    <p class="what">Run after ask. Reads every trace Phoenix recorded and scores it across 4 dimensions. Scores are written back to Phoenix so you can see them in the UI.</p>
+    <div class="evaluators">
+      <div class="eval-card"><div class="eval-name" style="color:#34d399">🔧 tool-calling</div><div class="eval-desc">Did the router pick the right tool with the right arguments?</div></div>
+      <div class="eval-card"><div class="eval-name" style="color:#38bdf8">🗄️ sql</div><div class="eval-desc">Is the generated SQL valid and actually correct?</div></div>
+      <div class="eval-card"><div class="eval-name" style="color:#fb923c">💬 clarity</div><div class="eval-desc">Is the final answer clear and easy to understand?</div></div>
+      <div class="eval-card"><div class="eval-name" style="color:#f472b6">🖼️ code</div><div class="eval-desc">Does the generated chart code run without errors?</div></div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">Example output</div>
+      <div class="score-row"><span class="score-label">tool-calling</span><div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#34d399"></div></div><span class="score-val" style="color:#34d399">3/3 ✓</span></div>
+      <div class="score-row"><span class="score-label">sql</span><div class="score-bar-wrap"><div class="score-bar" style="width:66%;background:#fb923c"></div></div><span class="score-val" style="color:#fb923c">2/3</span></div>
+      <div class="score-row"><span class="score-label">clarity</span><div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#34d399"></div></div><span class="score-val" style="color:#34d399">3/3 ✓</span></div>
+      <div class="score-row"><span class="score-label">code</span><div class="score-bar-wrap"><div class="score-bar" style="width:0%;background:#64748b"></div></div><span class="score-val" style="color:#64748b">0/0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="cmd-block single">
+  <div class="cmd-header">
+    <span class="cmd-icon">🎯</span>
+    <span class="cmd-title">eval &lt;name&gt;</span>
+    <span class="cmd-tag">focused check</span>
+  </div>
+  <div class="cmd-code">uv run python -m sales_agent.cli eval sql</div>
+  <div class="cmd-body">
+    <p class="what">Same as eval but runs only one evaluator. Use this when you've tweaked a prompt and want to check just that one dimension — faster, and no noise from the others.</p>
+    <div class="flow">
+      <div class="flow-step" style="border-color:#38bdf8;color:#38bdf8">eval sql</div><div class="flow-arrow">→</div>
+      <div class="flow-step">reads SQL spans only</div><div class="flow-arrow">→</div>
+      <div class="flow-step">scores them</div><div class="flow-arrow">→</div>
+      <div class="flow-step">writes back to Phoenix</div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">Available options</div>
+      <div class="example-line" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem">
+        <span style="background:#0f172a;border:1px solid #38bdf8;color:#38bdf8;border-radius:999px;padding:0.2rem 0.7rem;font-size:0.8rem;font-family:monospace">sql</span>
+        <span style="background:#0f172a;border:1px solid #34d399;color:#34d399;border-radius:999px;padding:0.2rem 0.7rem;font-size:0.8rem;font-family:monospace">tool-calling</span>
+        <span style="background:#0f172a;border:1px solid #fb923c;color:#fb923c;border-radius:999px;padding:0.2rem 0.7rem;font-size:0.8rem;font-family:monospace">clarity</span>
+        <span style="background:#0f172a;border:1px solid #f472b6;color:#f472b6;border-radius:999px;padding:0.2rem 0.7rem;font-size:0.8rem;font-family:monospace">code</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cmd-block exp">
+  <div class="cmd-header">
+    <span class="cmd-icon">🧪</span>
+    <span class="cmd-title">experiment</span>
+    <span class="cmd-tag">robustness test</span>
+  </div>
+  <div class="cmd-code">uv run python -m sales_agent.cli experiment</div>
+  <div class="cmd-body">
+    <p class="what">Asks the agent the same question 17 different ways. Measures whether it takes the same number of steps each time. Fewer steps = more direct = better score.</p>
+    <div class="flow">
+      <div class="flow-step">17 phrasings</div><div class="flow-arrow">→</div>
+      <div class="flow-step">run agent on each</div><div class="flow-arrow">→</div>
+      <div class="flow-step">count steps per run</div><div class="flow-arrow">→</div>
+      <div class="flow-step">score = optimal ÷ actual</div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">Scoring example (optimal = 5 steps)</div>
+      <div class="score-row"><span class="score-label" style="font-family:monospace;font-size:0.75rem">"avg qty per txn?"</span><div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#34d399"></div></div><span class="score-val" style="color:#34d399">1.00</span></div>
+      <div class="score-row"><span class="score-label" style="font-family:monospace;font-size:0.75rem">"avg qty per sale?"</span><div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#34d399"></div></div><span class="score-val" style="color:#34d399">1.00</span></div>
+      <div class="score-row"><span class="score-label" style="font-family:monospace;font-size:0.75rem">"mean items/purchase?"</span><div class="score-bar-wrap"><div class="score-bar" style="width:71%;background:#fb923c"></div></div><span class="score-val" style="color:#fb923c">0.71</span></div>
+      <div class="example-line" style="margin-top:0.6rem;color:#64748b;font-size:0.78rem">0.71 = 5 optimal ÷ 7 actual steps — wasted 2 steps on this phrasing</div>
+    </div>
+  </div>
+</div>
+
+<div class="cmd-block gen">
+  <div class="cmd-header">
+    <span class="cmd-icon">📦</span>
+    <span class="cmd-title">generate_data.py</span>
+    <span class="cmd-tag">dataset tool</span>
+  </div>
+  <div class="cmd-code">uv run python scripts/generate_data.py
+uv run python scripts/generate_data.py --until 2025-12-31 --seed 7</div>
+  <div class="cmd-body">
+    <p class="what">Extends the sales dataset. The data file has 1.48M rows. This script appends new rows for any missing dates. Safe to run many times — never duplicates rows.</p>
+    <div class="flow">
+      <div class="flow-step">read parquet</div><div class="flow-arrow">→</div>
+      <div class="flow-step">find last date</div><div class="flow-arrow">→</div>
+      <div class="flow-step">generate new rows</div><div class="flow-arrow">→</div>
+      <div class="flow-step">append to file</div>
+    </div>
+    <div class="flags">
+      <div class="flag-card">
+        <div class="flag-name" style="color:#f472b6">--until 2025-12-31</div>
+        <div class="flag-desc">Stop generating at this date. Default is today. Use when you want a fixed snapshot.</div>
+      </div>
+      <div class="flag-card">
+        <div class="flag-name" style="color:#f472b6">--seed 7</div>
+        <div class="flag-desc">Pins the randomness. Same seed = identical rows every time. Share the seed and anyone can reproduce your exact dataset.</div>
+        <div class="seed-visual">
+          <span class="seed-pill" style="color:#34d399;border-color:#34d399;background:#0f172a">seed 7 → row A</span>
+          <span class="seed-pill" style="color:#34d399;border-color:#34d399;background:#0f172a">seed 7 → row A ✓</span>
+          <span class="seed-pill" style="color:#fb923c;border-color:#fb923c;background:#0f172a">seed 42 → row B ≠</span>
+        </div>
+      </div>
+    </div>
+    <div class="example-box">
+      <div class="example-label">Example</div>
+      <div class="example-line">Data ends at: <span style="color:#f472b6">2025-06-01</span>  ·  Today: <span style="color:#34d399">2026-09-04</span></div>
+      <div class="example-line" style="margin-top:0.3rem">→ appends 2025-06-02 → 2026-09-04 · dataset grows to ~1.6M rows</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
