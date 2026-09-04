@@ -15,6 +15,8 @@ Four evaluators, mirroring the four the course teaches:
 
 from __future__ import annotations
 
+import os
+
 import pandas as pd
 from phoenix.client import Client
 from phoenix.evals import (
@@ -62,6 +64,11 @@ Respond with a single word: "clear" or "unclear".
 
 def _judge_llm() -> LLM:
     settings = get_settings()
+    # The phoenix-evals LLM wrapper validates credentials from the environment
+    # at construction, before it forwards sync_client_kwargs, so mirror the
+    # settings into os.environ for this process.
+    os.environ.setdefault("OPENAI_API_KEY", settings.openai_api_key)
+    os.environ.setdefault("OPENAI_BASE_URL", settings.openai_base_url)
     return LLM(
         provider="openai",
         model=settings.openai_model,
@@ -186,12 +193,19 @@ def _log(
     eval_name: str,
     source_df: pd.DataFrame,
     results: pd.DataFrame,
-    score_col: str,
+    evaluator_name: str,
 ) -> None:
-    """Log LLM-judge results back to Phoenix as span evaluations."""
+    """Log LLM-judge results back to Phoenix as span evaluations.
+
+    ``evaluate_dataframe`` returns the verdict in a ``{evaluator}_score`` column
+    whose cells are dicts: ``{'score', 'label', 'explanation', ...}``.
+    ``log_span_annotations_dataframe`` needs those three fields as flat columns.
+    """
     frame = results.copy()
-    if score_col in frame.columns:
-        frame["score"] = frame[score_col]
+    verdict = frame[f"{evaluator_name}_score"]
+    frame["score"] = verdict.apply(lambda v: v.get("score"))
+    frame["label"] = verdict.apply(lambda v: v.get("label"))
+    frame["explanation"] = verdict.apply(lambda v: v.get("explanation"))
     Client(
         base_url=get_settings().phoenix_collector_endpoint
     ).spans.log_span_annotations_dataframe(
