@@ -5,8 +5,7 @@ number of steps across many paraphrases of the same question. We upload the
 paraphrases as a Phoenix dataset, run the agent on each (recording the message
 trajectory length), then score each run against the shortest observed path.
 
-Ported to the current ``phoenix.client.experiments`` API (the course-era
-``phoenix.experiments`` + ``px.Client().upload_dataset`` no longer apply).
+Uses the ``phoenix.client.experiments`` API.
 """
 
 from __future__ import annotations

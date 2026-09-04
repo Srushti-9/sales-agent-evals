@@ -1,10 +1,9 @@
 """Tracing: configure Arize Phoenix + OpenTelemetry for the agent.
 
-The course notebooks assumed a Phoenix server was already running and got its
-endpoint from a course-provided helper. Here we detect whether a collector is
-reachable at ``PHOENIX_COLLECTOR_ENDPOINT``; if not, we launch a local Phoenix
-app in-process (``px.launch_app()``). Either way ``register(auto_instrument=True)``
-wires up the OpenAI instrumentation, so LLM calls are traced automatically.
+We detect whether a collector is reachable at ``PHOENIX_COLLECTOR_ENDPOINT``;
+if not, we launch a local Phoenix app in-process (``px.launch_app()``). Either
+way ``register(auto_instrument=True)`` wires up the OpenAI instrumentation, so
+LLM calls are traced automatically.
 """
 
 from __future__ import annotations

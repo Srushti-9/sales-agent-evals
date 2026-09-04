@@ -1,12 +1,10 @@
 """Evals: score the agent's traced spans with LLM-as-judge and code checks.
 
-Ported to the current Phoenix 20.x / phoenix-evals 3.x API, which is a full
-break from the course-era notebook (``llm_classify`` / ``OpenAIModel`` /
-``TOOL_CALLING_PROMPT_TEMPLATE`` / ``px.Client()`` no longer exist). The new
-flow is: build a ``ClassificationEvaluator`` via ``create_classifier``, then
-run it over a span dataframe with ``evaluate_dataframe``.
+Uses the Phoenix 20.x / phoenix-evals 3.x API: build a
+``ClassificationEvaluator`` via ``create_classifier``, then run it over a span
+dataframe with ``evaluate_dataframe``.
 
-Four evaluators, mirroring the four the course teaches:
+Four evaluators:
   * router tool-calling correctness (LLM judge)
   * SQL-generation correctness (LLM judge)
   * response clarity (LLM judge)
