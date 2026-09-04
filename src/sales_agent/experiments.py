@@ -94,7 +94,7 @@ def run_convergence_experiment():
         experiment_description="Evaluating the convergence of the agent",
     )
 
-    outputs = experiment.as_dataframe()["output"].to_dict().values()
+    outputs = [run.get("output") for run in experiment["task_runs"]]
     lengths = [
         o.get("path_length")
         for o in outputs

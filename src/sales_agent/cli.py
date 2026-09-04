@@ -9,6 +9,13 @@ from __future__ import annotations
 import argparse
 import sys
 
+# Phoenix prints status lines containing emoji; force UTF-8 so they don't crash
+# on Windows consoles that default to a legacy codepage (e.g. cp1252).
+for _stream in (sys.stdout, sys.stderr):
+    reconfigure = getattr(_stream, "reconfigure", None)
+    if reconfigure is not None:
+        reconfigure(encoding="utf-8")
+
 
 def _cmd_ask(args: argparse.Namespace) -> int:
     from .agent import ask
@@ -50,7 +57,15 @@ def _cmd_experiment(args: argparse.Namespace) -> int:
         print(f"Phoenix UI: {session_url}", file=sys.stderr)
 
     experiment = run_convergence_experiment()
-    print(experiment.as_dataframe().to_string())
+    scores = [
+        run.result["score"]
+        for run in experiment["evaluation_runs"]
+        if run.result and run.result.get("score") is not None
+    ]
+    for i, score in enumerate(scores, 1):
+        print(f"  run {i:>2}: convergence {score:.2f}")
+    if scores:
+        print(f"mean convergence: {sum(scores) / len(scores):.2f} over {len(scores)} paraphrases")
     return 0
 
 
