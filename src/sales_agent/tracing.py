@@ -9,12 +9,16 @@ wires up the OpenAI instrumentation, so LLM calls are traced automatically.
 
 from __future__ import annotations
 
+import atexit
 import contextlib
 import urllib.error
 import urllib.request
+import warnings
 
-import phoenix as px
-from phoenix.otel import register
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import phoenix as px
+    from phoenix.otel import register
 
 from .config import get_settings
 
@@ -81,8 +85,17 @@ def setup_tracing():
     tracer_provider = register(
         project_name=settings.phoenix_project_name,
         endpoint=f"{endpoint}/v1/traces",
+        batch=True,
         auto_instrument=True,
+        verbose=False,
     )
+    atexit.register(_flush_and_shutdown, tracer_provider)
     global _tracer
     _tracer = tracer_provider.get_tracer(__name__)
     return _tracer, session_url
+
+
+def _flush_and_shutdown(tracer_provider) -> None:
+    with contextlib.suppress(Exception):
+        tracer_provider.force_flush()
+        tracer_provider.shutdown()
